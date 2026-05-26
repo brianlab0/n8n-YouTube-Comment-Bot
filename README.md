@@ -2,6 +2,7 @@
 
 An end-to-end automation system integrating LINE Messaging API, YouTube Data API v3, and Google Gemini AI via n8n workflow engine. Manage YouTube comments hands-free through conversational LINE configuration, automated keyword-based replies, and real-time AI-generated notifications.
 
+> Note: The workflow JSON files use Chinese node names (e.g. `讀取規則`, `留言過濾`) that match the original development environment. The Code expressions reference these exact Chinese names. If you rename nodes after import, update the references accordingly.
 
 ---
 
@@ -218,10 +219,12 @@ Navigate to http://localhost:5678/home/credentials and create:
 
 ### Phase 4: Google Sheets
 
-Create a new spreadsheet named YT自動回覆留言 with this header row (A1:F1):
+Create a new spreadsheet named `YT_Auto_Reply_Comments` (or any name you prefer; just match it in the Sheets node config) with this header row (A1:F1):
 
-| youtube_url | ID | 關鍵字 | 回應 | 檢查時間 | 已回覆留言ID |
+| youtube_url | ID | keyword | reply | check_time | replied_ids |
 |---|---|---|---|---|---|
+
+> Note: The workflow JSON uses Chinese column names (`關鍵字`, `回應`, `檢查時間`, `已回覆留言ID`). If you use English column names, rename the references in the Code nodes and Sheets mappings accordingly.
 
 ---
 
@@ -235,11 +238,11 @@ In n8n, click the menu icon and select Import from File. Import the two JSON fil
 After import, manually:
 1. Re-link credentials in each node (n8n does not auto-bind credentials across imports)
 2. Update the ownChannelId in the Code node of Workflow 2 to your YouTube channel ID
-3. Update YOUR_LINE_USER_ID in the LINE推播 node of Workflow 2 to your LINE User ID
+3. Update YOUR_LINE_USER_ID in the LINE Push node of Workflow 2 to your LINE User ID
 
 ---
 
-## Workflow 1: yt答覆設定 (5 nodes + 1 sub-node)
+## Workflow 1: YT_reply_settings (5 nodes + 1 sub-node)
 
 ### Node 1: Webhook
 
@@ -351,8 +354,8 @@ return results;
 | Credential | Google Sheets account |
 | Resource | Sheet Within Document |
 | Operation | Append Row |
-| Document | YT自動回覆留言 |
-| Sheet | 工作表1 |
+| Document | YT_Auto_Reply_Comments |
+| Sheet | Sheet1 |
 | Mapping Column Mode | Map Each Column Manually |
 
 Column mappings:
@@ -361,8 +364,8 @@ Column mappings:
 |---|---|
 | youtube_url | `{{ $json.url }}` |
 | ID | `{{ $json.id }}` |
-| 關鍵字 | `{{ $json.key }}` |
-| 回應 | `{{ $json.reply }}` |
+| keyword | `{{ $json.key }}` |
+| reply | `{{ $json.reply }}` |
 
 ### Node 6: HTTP Request (LINE Push)
 
@@ -404,7 +407,7 @@ JSON Body:
 
 ---
 
-## Workflow 2: YT自動回覆留言 v2 (12 nodes)
+## Workflow 2: YT_auto_reply (12 nodes)
 
 ### Node 1: Schedule Trigger
 
@@ -413,14 +416,16 @@ JSON Body:
 | Trigger Interval | Minutes |
 | Minutes Between Triggers | 3 |
 
-### Node 2: 讀取規則 (Google Sheets - Get Rows)
+### Node 2: Read Rules (Google Sheets - Get Rows)
+
+> Node name in JSON: `讀取規則`
 
 | Field | Value |
 |---|---|
 | Credential | Google Sheets account |
 | Operation | Get Row(s) |
-| Document | YT自動回覆留言 |
-| Sheet | 工作表1 |
+| Document | YT_Auto_Reply_Comments |
+| Sheet | Sheet1 |
 
 ### Node 3: Loop Over Items
 
@@ -428,7 +433,9 @@ JSON Body:
 |---|---|
 | Batch Size | 1 |
 
-### Node 4: GET YouTube留言 (HTTP Request)
+### Node 4: GET YouTube Comments (HTTP Request)
+
+> Node name in JSON: `GET YouTube留言`
 
 | Field | Value |
 |---|---|
@@ -448,7 +455,9 @@ Query Parameters:
 | maxResults | 20 |
 | order | time |
 
-### Node 5: 留言過濾 (Code in JavaScript)
+### Node 5: Comment Filter (Code in JavaScript)
+
+> Node name in JSON: `留言過濾`
 
 Code (Replace ownChannelId with your YouTube channel ID):
 
@@ -514,7 +523,11 @@ return [{ json: {
 }}];
 ```
 
-### Node 6: 有動作? (If)
+> Note: The Code references Chinese column names (`關鍵字`, `回應`, `已回覆留言ID`) because the workflow JSON was developed with Chinese Sheets columns. If you use English column names, update these references.
+
+### Node 6: Has Action? (If)
+
+> Node name in JSON: `有動作?`
 
 | Field | Value |
 |---|---|
@@ -522,10 +535,12 @@ return [{ json: {
 | Operation | is not equal to |
 | Second Value | skip |
 
-- True -> Node 7 (需要回覆?)
+- True -> Node 7 (Needs Reply?)
 - False -> Loop Over Items (back)
 
-### Node 7: 需要回覆? (If)
+### Node 7: Needs Reply? (If)
+
+> Node name in JSON: `需要回覆?`
 
 | Field | Value |
 |---|---|
@@ -533,10 +548,12 @@ return [{ json: {
 | Operation | is equal to |
 | Second Value | reply |
 
-- True -> Node 8 (YouTube回覆)
-- False -> Node 9 (更新已回覆紀錄)
+- True -> Node 8 (YouTube Reply)
+- False -> Node 9 (Update Reply Records)
 
-### Node 8: YouTube回覆 (HTTP Request)
+### Node 8: YouTube Reply (HTTP Request)
+
+> Node name in JSON: `YouTube回覆`
 
 | Field | Value |
 |---|---|
@@ -561,14 +578,16 @@ JSON Body:
 }) }}
 ```
 
-### Node 9: 更新已回覆紀錄 (Google Sheets - Update Row)
+### Node 9: Update Reply Records (Google Sheets - Update Row)
+
+> Node name in JSON: `更新已回覆紀錄`
 
 | Field | Value |
 |---|---|
 | Credential | Google Sheets account |
 | Operation | Update Row |
-| Document | YT自動回覆留言 |
-| Sheet | 工作表1 |
+| Document | YT_Auto_Reply_Comments |
+| Sheet | Sheet1 |
 | Column to match on | row_number |
 
 Column mappings:
@@ -577,8 +596,8 @@ Column mappings:
 |---|---|
 | row_number | `{{ $('留言過濾').item.json['row_number'] }}` |
 | youtube_url | `{{ $('留言過濾').item.json['youtube_url'] }}` |
-| 檢查時間 | `{{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}` |
-| 已回覆留言ID | `{{ ($('留言過濾').item.json['existingIds'] ? $('留言過濾').item.json['existingIds'] + ',' : '') + $('留言過濾').item.json['commentId'] }}` |
+| check_time | `{{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}` |
+| replied_ids | `{{ ($('留言過濾').item.json['existingIds'] ? $('留言過濾').item.json['existingIds'] + ',' : '') + $('留言過濾').item.json['commentId'] }}` |
 
 ### Node 10: Google Gemini Chat Model (Sub-node)
 
@@ -626,7 +645,9 @@ Format Rules - Strict
 
 Connect Gemini Chat Model to AI_Notify's Chat Model slot.
 
-### Node 12: LINE推播 (HTTP Request)
+### Node 12: LINE Push (HTTP Request)
+
+> Node name in JSON: `LINE推播`
 
 | Field | Value |
 |---|---|
@@ -655,9 +676,9 @@ JSON Body (Replace YOUR_LINE_USER_ID):
 
 ### Final Connections
 
-- LINE推播 output -> back to Loop Over Items input
-- 有動作? false -> back to Loop Over Items input
-- Delete any auto-generated loop-back from GET YouTube留言 directly to Loop
+- LINE Push output -> back to Loop Over Items input
+- Has Action? false -> back to Loop Over Items input
+- Delete any auto-generated loop-back from GET YouTube Comments directly to Loop
 
 ---
 
@@ -681,6 +702,12 @@ JSON Body (Replace YOUR_LINE_USER_ID):
 Send to your LINE bot:
 
 ```
+https://youtu.be/dQw4w9WgXcQ keyword:subscribe reply:thanks for subscribing
+```
+
+Or in Chinese (matches the original development):
+
+```
 https://youtu.be/dQw4w9WgXcQ 關鍵字：訂閱 回覆：感謝訂閱
 ```
 
@@ -690,7 +717,7 @@ Expected:
 
 ### Test Workflow 2
 
-1. Have a friend (or alternate account) comment "我訂閱了" on your video
+1. Have a friend (or alternate account) comment "I subscribed" (or "我訂閱了") on your video
 2. Manually trigger Workflow 2 or wait 3 minutes
 3. Expected:
    - YouTube reply appears under the friend's comment
@@ -707,7 +734,7 @@ Expected:
 | Invalid reply token | LINE Reply tokens expire in 30s — use Push API instead |
 | JSON parse failed at position N | AI returned multiple JSONs; updated Code already handles this with split('\n') |
 | .trim is not a function | Sheets returned a number; updated Code wraps values with String() |
-| Loop only processes 1 row | Confirm 讀取規則 returns all items (no "Return only First Matching Row" option) |
+| Loop only processes 1 row | Confirm Read Rules node returns all items (no "Return only First Matching Row" option) |
 | HTTP Request runs N times | Enable Execute Once in Settings tab |
 | LINE comments disappear after refresh | YouTube spam filter — diversify reply text, avoid template responses |
 
@@ -729,13 +756,9 @@ n8n-YouTube-Comment-Bot/
 
 ---
 
-
-
 ## Acknowledgments
 
 - n8n — workflow automation engine
 - Google Gemini — LLM
 - LINE Messaging API
 - YouTube Data API v3
-
----
