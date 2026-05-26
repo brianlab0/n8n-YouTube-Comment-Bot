@@ -1,0 +1,578 @@
+{
+  "name": "YT自動回覆留言",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "09c7984f-abf2-4a44-8a77-d604fd3e965e",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8a49c4e9-5d61-47b3-8b53-751f4c0f7756",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1tP-wRi63mHJHNJWrOwZTFVIFAfnxEL-UFJHXn2ZQIc0",
+          "mode": "list",
+          "cachedResultName": "YT自動回覆留言",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tP-wRi63mHJHNJWrOwZTFVIFAfnxEL-UFJHXn2ZQIc0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tP-wRi63mHJHNJWrOwZTFVIFAfnxEL-UFJHXn2ZQIc0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4633ca8b-d6e4-4699-bc77-3001cdfa8f33",
+      "name": "讀取規則",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0e5QQKWZ4Pv510nQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/commentThreads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "videoId",
+              "value": "={{ $('Loop Over Items').item.json['ID'] }}"
+            },
+            {
+              "name": "maxResults",
+              "value": "20"
+            },
+            {
+              "name": "order",
+              "value": "time"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        208
+      ],
+      "id": "7a0a6b5c-20d9-44b6-af50-458922690d7d",
+      "name": "GET YouTube留言",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "T8hiklJIczVrX1gH",
+          "name": "Google OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const loopRow = $('Loop Over Items').item.json;\nconst ytItems = $input.first().json.items || [];\n\n// 強制轉字串再 trim，避免純數字欄位（如 123）報錯\nconst keyword    = String(loopRow['關鍵字'] || '').trim();\nconst replyText  = String(loopRow['回應'] || '').trim();\nconst existingIds = String(loopRow['已回覆留言ID'] || '').trim();\nconst ownChannelId = 'UCKZafvOUvIJj4ZwrUMTbzDQ';\n\n// 合併同影片所有列的已回覆ID\nconst allRows = $('讀取規則').all().map(i => i.json);\nconst existingList = allRows\n  .filter(r => String(r['youtube_url'] || '').trim() === String(loopRow['youtube_url'] || '').trim())\n  .flatMap(r => String(r['已回覆留言ID'] || '').trim().split(',').filter(x => x.trim()));\n\n// 過濾：排除已回覆 + 自己頻道\nconst newComments = ytItems.filter(item => {\n  const id     = item.snippet.topLevelComment.id;\n  const author = item.snippet.topLevelComment.snippet.authorChannelId?.value;\n  return !existingList.includes(id) && author !== ownChannelId;\n});\n\n// 關鍵字 match 優先\nconst toReply  = newComments.filter(c =>\n  c.snippet.topLevelComment.snippet.textDisplay.includes(keyword)\n);\nconst toNotify = newComments.filter(c =>\n  !c.snippet.topLevelComment.snippet.textDisplay.includes(keyword)\n);\n\n// 每次只處理第一則\nconst target = toReply[0] || toNotify[0] || null;\nif (!target) return [{ json: { action: 'skip' } }];\n\nconst action = toReply.includes(target) ? 'reply' : 'notify';\n\n// notify 只讓同影片 row_number 最小的列觸發\nif (action === 'notify') {\n  const sameVideoMinRow = Math.min(...allRows\n    .filter(r => String(r['youtube_url'] || '').trim() === String(loopRow['youtube_url'] || '').trim())\n    .map(r => r['row_number']));\n  if (loopRow['row_number'] !== sameVideoMinRow) {\n    return [{ json: { action: 'skip' } }];\n  }\n}\n\nconst comment = target.snippet.topLevelComment;\n\nreturn [{ json: {\n  action,\n  row_number:  loopRow['row_number'],\n  commentId:   comment.id,\n  text:        comment.snippet.textDisplay,\n  author:      comment.snippet.authorDisplayName,\n  videoId:     target.snippet.videoId,\n  youtube_url: String(loopRow['youtube_url'] || '').trim(),\n  replyText,\n  existingIds\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        208
+      ],
+      "id": "32f7d73b-a7e5-4e90-808f-2949c4781154",
+      "name": "留言過濾"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "95d3ac10-7891-49c7-a221-388f80c88a68",
+              "leftValue": "={{ $('留言過濾').item.json.action }}",
+              "rightValue": "skip",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        208
+      ],
+      "id": "e53f5c60-2ec6-4996-858a-43a925688e87",
+      "name": "有動作?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b94a5e39-f0fb-4ef3-b448-fda443b6f210",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "reply",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1296,
+        112
+      ],
+      "id": "f72a1600-d6df-4fcc-83cc-7e5c61332fc3",
+      "name": "需要回覆?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/youtube/v3/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  snippet: {\n    parentId: $('留言過濾').item.json.commentId,\n    textOriginal: $('留言過濾').item.json.replyText\n  }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1504,
+        16
+      ],
+      "id": "04cd7187-6561-4b81-a754-611dfa284465",
+      "name": "YouTube回覆",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "T8hiklJIczVrX1gH",
+          "name": "Google OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        224
+      ],
+      "id": "ff7c1727-5e7b-43f1-ba44-8f07a4c9b53a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "pUc8FHkL6VjEgiDX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  to: 'U3219c78b7ec161b0001ad79c56ce2af8',\n  messages: [{\n    type: 'text',\n    text: $json.output + '\\n\\n影片連結：' + $('留言過濾').item.json.youtube_url\n  }]\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2272,
+        16
+      ],
+      "id": "6247943c-63eb-42e5-b0df-276410c4face",
+      "name": "LINE推播",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1Fv7w0nmdUAGPQEa",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('留言過濾').item.json.action === 'reply'\n  ? '已自動回覆 @' + $('留言過濾').item.json.author\n    + ' 的留言：「' + $('留言過濾').item.json.text + '」'\n    + '，回覆：' + $('留言過濾').item.json.replyText\n  : '有新留言需確認，留言者：@' + $('留言過濾').item.json.author\n    + '，內容：「' + $('留言過濾').item.json.text + '」'\n}}",
+        "options": {
+          "systemMessage": "你是 YouTube 頻道的 LINE 通知助理。\n\n【任務】\n根據提供的留言資訊，用繁體中文生成一則簡短的 LINE 通知。\n\n【格式規則 - 嚴格遵守】\n1. 已回覆的訊息必須以 ✅ 開頭\n2. 新留言需確認的必須以 ⚠️ 開頭\n3. 訊息總長度不超過 100 字\n4. 不超過 4 行\n5. 不要加任何前綴（例如「以下是...」「通知內容：」）\n6. 不要包 ```markdown``` 或其他標籤\n7. 直接輸出訊息本身\n\n【範例輸出】\n✅ 已自動回覆 @張小明 的訂閱留言「我訂閱了」\n回覆內容：感謝訂閱！\n\n或\n\n⚠️ 有新留言需要回覆\n留言者：@李小華\n內容：「請問這集的配樂是什麼？」"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1920,
+        16
+      ],
+      "id": "c13af583-7a3c-4306-ab0a-da85e8f12569",
+      "name": "AI_Notify"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1tP-wRi63mHJHNJWrOwZTFVIFAfnxEL-UFJHXn2ZQIc0",
+          "mode": "list",
+          "cachedResultName": "YT自動回覆留言",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tP-wRi63mHJHNJWrOwZTFVIFAfnxEL-UFJHXn2ZQIc0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tP-wRi63mHJHNJWrOwZTFVIFAfnxEL-UFJHXn2ZQIc0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('留言過濾').item.json['row_number'] }}",
+            "youtube_url": "={{ $('留言過濾').item.json['youtube_url'] }}",
+            "檢查時間": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "已回覆留言ID": "={{ ($('留言過濾').item.json['existingIds'] ? $('留言過濾').item.json['existingIds'] + ',' : '') + $('留言過濾').item.json['commentId'] }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "youtube_url",
+              "displayName": "youtube_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "關鍵字",
+              "displayName": "關鍵字",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "回應",
+              "displayName": "回應",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "檢查時間",
+              "displayName": "檢查時間",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "已回覆留言ID",
+              "displayName": "已回覆留言ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        16
+      ],
+      "id": "2a74fe36-1861-4bee-8715-0b16f690b537",
+      "name": "更新已回覆紀錄",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0e5QQKWZ4Pv510nQ",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "讀取規則",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "GET YouTube留言",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "讀取規則": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET YouTube留言": {
+      "main": [
+        [
+          {
+            "node": "留言過濾",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "留言過濾": {
+      "main": [
+        [
+          {
+            "node": "有動作?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "有動作?": {
+      "main": [
+        [
+          {
+            "node": "需要回覆?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "需要回覆?": {
+      "main": [
+        [
+          {
+            "node": "YouTube回覆",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "更新已回覆紀錄",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube回覆": {
+      "main": [
+        [
+          {
+            "node": "更新已回覆紀錄",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI_Notify",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LINE推播": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_Notify": {
+      "main": [
+        [
+          {
+            "node": "LINE推播",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "更新已回覆紀錄": {
+      "main": [
+        [
+          {
+            "node": "AI_Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "297d0bae-3d22-4ac7-84e1-3e1506bfc1eb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "537727339946beed0622941aa3c89f1725791628f19edbcf81a0d40306ae7f7c"
+  },
+  "id": "yDLR037A46xE1OfN",
+  "tags": []
+}
