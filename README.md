@@ -20,7 +20,7 @@ An end-to-end automation system integrating LINE Messaging API, YouTube Data API
 ## Architecture
 
 ```
-WORKFLOW 1: yt答覆設定 (Rule Setup via LINE)
+WORKFLOW 1: YT_reply_settings (Rule Setup via LINE)
 
 [LINE User] -> [LINE API] -> [ngrok] -> [n8n Webhook]
                                             |
@@ -37,7 +37,7 @@ WORKFLOW 1: yt答覆設定 (Rule Setup via LINE)
                                 [HTTP Request -> LINE Reply]
 
 
-WORKFLOW 2: YT自動回覆留言 (Scheduled Comment Processing)
+WORKFLOW 2: YT_auto_reply (Scheduled Comment Processing)
 
 [Schedule Trigger: every 3min]
          |
