@@ -750,7 +750,8 @@ n8n-YouTube-Comment-Bot/
 │   ├── YT_reply_settings.json
 │   └── YT_auto_reply.json
 ├── docs/
-│   └── architecture.png
+│   ├── architecture1.png
+│   └── architecture2.png
 └── .gitignore
 ```
 
