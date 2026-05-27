@@ -765,4 +765,3 @@ n8n-YouTube-Comment-Bot/
 
 ---
 
-Made with love by Brian
