@@ -1,0 +1,22 @@
+# Sensitive files - never commit
+docker-compose.yml
+.env
+*.local
+
+# n8n data
+n8n_data/
+volumes/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
