@@ -20,59 +20,19 @@ An end-to-end automation system integrating LINE Messaging API, YouTube Data API
 
 ## Architecture
 
-```
-WORKFLOW 1: YT_reply_settings (Rule Setup via LINE)
+### Workflow 1: Rule Setup via LINE
 
-[LINE User] -> [LINE API] -> [ngrok] -> [n8n Webhook]
-                                            |
-                                            v
-                                    [AI Agent + Gemini]
-                                            |
-                                            v
-                                    [Code: JSON Parse]
-                                            |
-                                            v
-                                  [Google Sheets Append]
-                                            |
-                                            v
-                                [HTTP Request -> LINE Reply]
+![Workflow 1: LINE configures monitoring rules](docs/architecture1.png)
 
+This workflow handles natural language rule setup. Users send LINE messages with video URLs, keywords, and reply texts. AI Agent parses the input via Gemini, validates with a Code node, writes to Google Sheets, and confirms back to the user via LINE Push API.
 
-WORKFLOW 2: YT_auto_reply (Scheduled Comment Processing)
+---
 
-[Schedule Trigger: every 3min]
-         |
-         v
-[Read Sheets Rules]
-         |
-         v
-[Loop Over Items]
-         |
-         v
-[GET YouTube Comments via API]
-         |
-         v
-[Code: Filter + Decide Action (reply/notify/skip)]
-         |
-         v
-[If: action != skip?]
-  |- True: [If: action = reply?]
-  |        |- True: [YouTube Reply API]
-  |        |- False: skip to update
-  |              |
-  |              v
-  |    [Update Sheets: append commentId to F2]
-  |              |
-  |              v
-  |    [AI_Notify Agent + Gemini]
-  |              |
-  |              v
-  |    [LINE Push API]
-  |              |
-  |              v
-  |- False: [Back to Loop]
-```
+### Workflow 2: Scheduled Auto-Reply
 
+![Workflow 2: Scheduled YouTube comment processing](docs/architecture2.png)
+
+A Schedule Trigger fires every 3 minutes. The workflow reads all rules from Sheets, loops through each video, fetches latest YouTube comments, filters processed and own-channel comments, and either auto-replies (keyword matched) or notifies (new comment without keyword) via LINE.
 ---
 
 ## Tech Stack
