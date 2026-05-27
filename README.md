@@ -762,3 +762,7 @@ n8n-YouTube-Comment-Bot/
 - Google Gemini — LLM
 - LINE Messaging API
 - YouTube Data API v3
+
+---
+
+Made with love by Brian
