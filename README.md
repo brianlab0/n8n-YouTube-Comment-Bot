@@ -20,6 +20,106 @@ An end-to-end automation system integrating LINE Messaging API, YouTube Data API
 
 ## Architecture
 
+### System Overview
+
+```mermaid
+flowchart LR
+    subgraph User["User Side"]
+        LineUser["LINE User"]
+        Friend["YouTube Commenter"]
+        Phone["Your LINE Mobile"]
+    end
+
+    subgraph Cloud["External APIs"]
+        LineAPI["LINE Messaging API"]
+        YouTubeAPI["YouTube Data API v3"]
+        Gemini["Google Gemini AI"]
+        Sheets["Google Sheets"]
+    end
+
+    subgraph Local["Your Mac (Docker)"]
+        Ngrok["ngrok Tunnel"]
+        N8N["n8n Workflow Engine"]
+    end
+
+    LineUser -->|setup rules| LineAPI
+    LineAPI -->|webhook POST| Ngrok
+    Ngrok --> N8N
+    N8N <-->|parse text| Gemini
+    N8N -->|write rules| Sheets
+
+    Friend -->|comment on video| YouTubeAPI
+    N8N -->|fetch every 3min| YouTubeAPI
+    N8N -->|reply| YouTubeAPI
+    N8N -->|notify| LineAPI
+    LineAPI -->|push notification| Phone
+
+    style Local fill:#e1f5ff
+    style Cloud fill:#fff4e6
+    style User fill:#f3e5f5
+```
+
+---
+
+### Workflow 1: Rule Setup via LINE
+
+```mermaid
+flowchart TD
+    Start(["LINE User sends:<br/>'https://youtu.be/xxx keyword:訂閱 reply:thanks'"])
+    Start --> Webhook["n8n Webhook<br/>(POST endpoint)"]
+    Webhook --> AIAgent["AI Agent<br/>(parse with Gemini)"]
+    AIAgent --> Code["Code in JavaScript<br/>(JSON.parse + validate)"]
+    Code --> Append["Google Sheets<br/>Append Row"]
+    Append --> HTTP["HTTP Request<br/>LINE Push API"]
+    HTTP --> End(["LINE shows:<br/>'Setup complete!'"])
+
+    style Start fill:#c8e6c9
+    style End fill:#c8e6c9
+    style AIAgent fill:#fff9c4
+    style Gemini1[["Gemini Chat Model"]] fill:#ffe0b2
+    AIAgent -.uses.-> Gemini1
+```
+
+---
+
+### Workflow 2: Scheduled Auto-Reply
+
+```mermaid
+flowchart TD
+    Trigger(["Schedule Trigger<br/>every 3 minutes"])
+    Trigger --> ReadRules["Read Rules from Sheets"]
+    ReadRules --> Loop["Loop Over Items<br/>(one row at a time)"]
+    Loop --> GetComments["GET YouTube Comments<br/>maxResults=20, order=time"]
+    GetComments --> Filter["Comment Filter (Code)<br/>action: reply / notify / skip"]
+    Filter --> HasAction{"action != skip?"}
+
+    HasAction -->|No| BackLoop1[Back to Loop]
+    HasAction -->|Yes| NeedsReply{"action == reply?"}
+
+    NeedsReply -->|Yes| YTReply["YouTube Reply API<br/>post auto-reply"]
+    NeedsReply -->|No| UpdateSheet
+    YTReply --> UpdateSheet["Update Sheets<br/>append commentId to F2"]
+
+    UpdateSheet --> AINotify["AI_Notify<br/>generate LINE message"]
+    AINotify --> LinePush["LINE Push API"]
+    LinePush --> Phone(["📱 Notification on your phone"])
+    Phone --> BackLoop2[Back to Loop]
+
+    BackLoop1 -.-> Loop
+    BackLoop2 -.-> Loop
+
+    Gemini2[["Gemini Chat Model"]]
+    AINotify -.uses.-> Gemini2
+
+    style Trigger fill:#c8e6c9
+    style Phone fill:#c8e6c9
+    style AINotify fill:#fff9c4
+    style HasAction fill:#ffccbc
+    style NeedsReply fill:#ffccbc
+    style Gemini2 fill:#ffe0b2
+```
+## Architecture
+
 ```
 WORKFLOW 1: YT_reply_settings (Rule Setup via LINE)
 
