@@ -22,7 +22,7 @@ An end-to-end automation system integrating LINE Messaging API, YouTube Data API
 
 ### Workflow 1: Rule Setup via LINE
 
-![Workflow 1: LINE configures monitoring rules](docs/architecture1.png)
+![Workflow 1: LINE configures monitoring rules](docs/architecture2.png)
 
 This workflow handles natural language rule setup. Users send LINE messages with video URLs, keywords, and reply texts. AI Agent parses the input via Gemini, validates with a Code node, writes to Google Sheets, and confirms back to the user via LINE Push API.
 
@@ -30,7 +30,7 @@ This workflow handles natural language rule setup. Users send LINE messages with
 
 ### Workflow 2: Scheduled Auto-Reply
 
-![Workflow 2: Scheduled YouTube comment processing](docs/architecture2.png)
+![Workflow 2: Scheduled YouTube comment processing](docs/architecture1.png)
 
 A Schedule Trigger fires every 3 minutes. The workflow reads all rules from Sheets, loops through each video, fetches latest YouTube comments, filters processed and own-channel comments, and either auto-replies (keyword matched) or notifies (new comment without keyword) via LINE.
 ---
