@@ -1,4 +1,4 @@
-# n8n-YouTube-Comment-Bot
+# n8n YouTube Comment Bot
 
 An end-to-end automation system integrating LINE Messaging API, YouTube Data API v3, and Google Gemini AI via n8n workflow engine. Manage YouTube comments hands-free through conversational LINE configuration, automated keyword-based replies, and real-time AI-generated notifications.
 
