@@ -21,7 +21,7 @@
 <g filter="url(#sh)"><rect x="322" y="362" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
 <rect x="322" y="362" width="6" height="62" rx="3" fill="#e8710a"/>
 <rect x="338" y="375" width="14" height="14" rx="4" fill="#e8710a"/>
-<text x="362" y="387" font-size="13.5" font-weight="700" fill="#1a1f36">Google Gemini Chat Model1</text>
+<text x="362" y="387" font-size="13.5" font-weight="700" fill="#1a1f36" textLength="148" lengthAdjust="spacingAndGlyphs">Google Gemini Chat Model1</text>
 <text x="362" y="405" font-size="10.5" fill="#6b7280">Gemini Chat Model</text>
 <g filter="url(#sh)"><rect x="674" y="74" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
 <rect x="674" y="74" width="6" height="62" rx="3" fill="#5b67f0"/>
@@ -41,6 +41,6 @@
 <g filter="url(#sh)"><rect x="498" y="282" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
 <rect x="498" y="282" width="6" height="62" rx="3" fill="#e8710a"/>
 <rect x="514" y="295" width="14" height="14" rx="4" fill="#e8710a"/>
-<text x="538" y="307" font-size="13.5" font-weight="700" fill="#1a1f36">Structured Output Parser</text>
+<text x="538" y="307" font-size="13.5" font-weight="700" fill="#1a1f36" textLength="148" lengthAdjust="spacingAndGlyphs">Structured Output Parser</text>
 <text x="538" y="325" font-size="10.5" fill="#6b7280">Output Parser</text>
 </svg>

@@ -60,7 +60,7 @@
 <g filter="url(#sh)"><rect x="1842" y="298" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
 <rect x="1842" y="298" width="6" height="62" rx="3" fill="#e8710a"/>
 <rect x="1858" y="311" width="14" height="14" rx="4" fill="#e8710a"/>
-<text x="1882" y="323" font-size="13.5" font-weight="700" fill="#1a1f36">Google Gemini Chat Model</text>
+<text x="1882" y="323" font-size="13.5" font-weight="700" fill="#1a1f36" textLength="148" lengthAdjust="spacingAndGlyphs">Google Gemini Chat Model</text>
 <text x="1882" y="341" font-size="10.5" fill="#6b7280">Gemini Chat Model</text>
 <g filter="url(#sh)"><rect x="2322" y="90" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
 <rect x="2322" y="90" width="6" height="62" rx="3" fill="#8b5cf6"/>
