@@ -49,7 +49,7 @@ flowchart LR
         Sheets["Google Sheets"]
     end
 
-    subgraph Local["Your Mac (Docker)"]
+    subgraph Local["Your machine · Docker"]
         Ngrok["ngrok Tunnel"]
         N8N["n8n Workflow Engine"]
     end
@@ -150,7 +150,7 @@ flowchart TD
 
 ## Prerequisites
 
-- macOS 12 Monterey+ (Apple Silicon or Intel) — Windows and Linux also supported
+- Docker Desktop on macOS, Windows, or Linux
 - Docker Desktop installed and running
 - ngrok account (free plan)
 - Google account (for YouTube, Sheets, Gemini)
