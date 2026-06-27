@@ -20,15 +20,15 @@ An end-to-end automation system integrating LINE Messaging API, YouTube Data API
 
 ## Architecture
 
-### Workflow Screenshots
+### Workflow Canvas
 
 #### Workflow 1: Rule Setup via LINE
 
-![Workflow 1](docs/architecture1.png)
+![Workflow 1](docs/workflow1.svg)
 
 #### Workflow 2: Scheduled Auto-Reply
 
-![Workflow 2](docs/architecture2.png)
+![Workflow 2](docs/workflow2.svg)
 
 ---
 

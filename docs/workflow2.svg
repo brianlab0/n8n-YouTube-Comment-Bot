@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2568 410" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+<defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.4" cy="1.4" r="1.4" fill="#d7d9e0"/></pattern><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9aa0ad"/></marker><marker id="arb" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#c4a6f0"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1a1f36" flood-opacity="0.12"/></filter></defs>
+<rect x="0" y="0" width="2568" height="410" fill="#f7f8fb"/>
+<rect x="0" y="0" width="2568" height="410" fill="url(#dots)"/>
+<text x="50" y="32" font-size="18" font-weight="700" fill="#1a1f36">Workflow 2 — Scheduled Auto-Reply</text>
+<path d="M246,105.0 C286,105.0 218,105.0 252,105.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M662,105.0 C702,105.0 634,313.0 668,313.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M454,105.0 C494,105.0 426,105.0 460,105.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M870,313.0 C910,313.0 890,313.0 924,313.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1126,313.0 C1166,313.0 1098,313.0 1132,313.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1334,313.0 C1374,313.0 1306,217.0 1340,217.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1334,313.0 C1374,313.0 426,105.0 460,105.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1542,217.0 C1582,217.0 1514,121.0 1548,121.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1542,217.0 C1652.0,217.0 1652.0,121.0 1756,121.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1750,121.0 C1790,121.0 1722,121.0 1756,121.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1940.0,298 C1940.0,258 2068.0,192 2068.0,158" fill="none" stroke="#c4a6f0" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arb)"/>
+<path d="M2518,121.0 C2558,121.0 426,105.0 460,105.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M2166,121.0 C2244.0,121.0 2244.0,121.0 2316,121.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1958,121.0 C1998,121.0 1930,121.0 1964,121.0" fill="none" stroke="#9aa0ad" stroke-width="2" marker-end="url(#ar)"/>
+<g filter="url(#sh)"><rect x="50" y="74" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="50" y="74" width="6" height="62" rx="3" fill="#ff6d5a"/>
+<rect x="66" y="87" width="14" height="14" rx="4" fill="#ff6d5a"/>
+<text x="90" y="99" font-size="13.5" font-weight="700" fill="#1a1f36">Schedule Trigger</text>
+<text x="90" y="117" font-size="10.5" fill="#6b7280">Schedule Trigger</text>
+<g filter="url(#sh)"><rect x="466" y="74" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="466" y="74" width="6" height="62" rx="3" fill="#6b7280"/>
+<rect x="482" y="87" width="14" height="14" rx="4" fill="#6b7280"/>
+<text x="506" y="99" font-size="13.5" font-weight="700" fill="#1a1f36">Loop Over Items</text>
+<text x="506" y="117" font-size="10.5" fill="#6b7280">Loop</text>
+<g filter="url(#sh)"><rect x="258" y="74" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="258" y="74" width="6" height="62" rx="3" fill="#0fa958"/>
+<rect x="274" y="87" width="14" height="14" rx="4" fill="#0fa958"/>
+<text x="298" y="99" font-size="13.5" font-weight="700" fill="#1a1f36">讀取規則</text>
+<text x="298" y="117" font-size="10.5" fill="#6b7280">Google Sheets</text>
+<g filter="url(#sh)"><rect x="674" y="282" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="674" y="282" width="6" height="62" rx="3" fill="#8b5cf6"/>
+<rect x="690" y="295" width="14" height="14" rx="4" fill="#8b5cf6"/>
+<text x="714" y="307" font-size="13.5" font-weight="700" fill="#1a1f36">GET YouTube留言</text>
+<text x="714" y="325" font-size="10.5" fill="#6b7280">HTTP Request</text>
+<g filter="url(#sh)"><rect x="930" y="282" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="930" y="282" width="6" height="62" rx="3" fill="#5b67f0"/>
+<rect x="946" y="295" width="14" height="14" rx="4" fill="#5b67f0"/>
+<text x="970" y="307" font-size="13.5" font-weight="700" fill="#1a1f36">留言過濾</text>
+<text x="970" y="325" font-size="10.5" fill="#6b7280">Code</text>
+<g filter="url(#sh)"><rect x="1138" y="282" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="1138" y="282" width="6" height="62" rx="3" fill="#ca8a04"/>
+<rect x="1154" y="295" width="14" height="14" rx="4" fill="#ca8a04"/>
+<text x="1178" y="307" font-size="13.5" font-weight="700" fill="#1a1f36">有動作?</text>
+<text x="1178" y="325" font-size="10.5" fill="#6b7280">If</text>
+<g filter="url(#sh)"><rect x="1346" y="186" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="1346" y="186" width="6" height="62" rx="3" fill="#ca8a04"/>
+<rect x="1362" y="199" width="14" height="14" rx="4" fill="#ca8a04"/>
+<text x="1386" y="211" font-size="13.5" font-weight="700" fill="#1a1f36">需要回覆?</text>
+<text x="1386" y="229" font-size="10.5" fill="#6b7280">If</text>
+<g filter="url(#sh)"><rect x="1554" y="90" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="1554" y="90" width="6" height="62" rx="3" fill="#8b5cf6"/>
+<rect x="1570" y="103" width="14" height="14" rx="4" fill="#8b5cf6"/>
+<text x="1594" y="115" font-size="13.5" font-weight="700" fill="#1a1f36">YouTube回覆</text>
+<text x="1594" y="133" font-size="10.5" fill="#6b7280">HTTP Request</text>
+<g filter="url(#sh)"><rect x="1842" y="298" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="1842" y="298" width="6" height="62" rx="3" fill="#e8710a"/>
+<rect x="1858" y="311" width="14" height="14" rx="4" fill="#e8710a"/>
+<text x="1882" y="323" font-size="13.5" font-weight="700" fill="#1a1f36">Google Gemini Chat Model</text>
+<text x="1882" y="341" font-size="10.5" fill="#6b7280">Gemini Chat Model</text>
+<g filter="url(#sh)"><rect x="2322" y="90" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="2322" y="90" width="6" height="62" rx="3" fill="#8b5cf6"/>
+<rect x="2338" y="103" width="14" height="14" rx="4" fill="#8b5cf6"/>
+<text x="2362" y="115" font-size="13.5" font-weight="700" fill="#1a1f36">LINE推播</text>
+<text x="2362" y="133" font-size="10.5" fill="#6b7280">HTTP Request</text>
+<g filter="url(#sh)"><rect x="1970" y="90" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="1970" y="90" width="6" height="62" rx="3" fill="#9333ea"/>
+<rect x="1986" y="103" width="14" height="14" rx="4" fill="#9333ea"/>
+<text x="2010" y="115" font-size="13.5" font-weight="700" fill="#1a1f36">AI_Notify</text>
+<text x="2010" y="133" font-size="10.5" fill="#6b7280">AI Agent</text>
+<g filter="url(#sh)"><rect x="1762" y="90" width="196" height="62" rx="10" fill="#ffffff" stroke="#e3e5ec"/></g>
+<rect x="1762" y="90" width="6" height="62" rx="3" fill="#0fa958"/>
+<rect x="1778" y="103" width="14" height="14" rx="4" fill="#0fa958"/>
+<text x="1802" y="115" font-size="13.5" font-weight="700" fill="#1a1f36">更新已回覆紀錄</text>
+<text x="1802" y="133" font-size="10.5" fill="#6b7280">Google Sheets</text>
+</svg>
